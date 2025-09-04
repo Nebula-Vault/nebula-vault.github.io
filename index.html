@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Downloads • Nebula Vault</title>
+  <meta name="description" content="A super-clean, animated downloads hub you can host on GitHub Pages." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- AOS (scroll reveal) -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+  <style>
+    :root{
+      --bg: #0b0f19;
+      --panel: rgba(255,255,255,0.06);
+      --panel-strong: rgba(255,255,255,0.12);
+      --text: #e7eaf3;
+      --muted: #a9b0c4;
+      --accent: #7c9cff; /* primary */
+      --accent-2: #22d3ee; /* cyan */
+      --card-glow: 0 10px 30px rgba(124,156,255,.25);
+      --radius: 18px;
+    }
+    :root.light{
+      --bg: #f7f8fc;
+      --panel: rgba(17,25,40,0.06);
+      --panel-strong: rgba(17,25,40,0.12);
+      --text: #0b1220;
+      --muted: #445069;
+      --accent: #4f46e5;
+      --accent-2: #06b6d4;
+      --card-glow: 0 10px 30px rgba(79,70,229,.18);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--text); background: radial-gradient(1200px 800px at 10% -10%, rgba(124,156,255,.12), transparent 60%), radial-gradient(1200px 800px at 110% 10%, rgba(34,211,238,.10), transparent 60%), var(--bg); overflow-x:hidden;
+    }
+    a{color:inherit; text-decoration:none}
+    .container{width:min(1200px, 92%); margin-inline:auto}
+
+    /* Navbar */
+    .nav{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px); background:linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0));}
+    .nav-inner{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 0}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px}
+    .brand-logo{width:36px; height:36px; display:grid; place-items:center; border-radius:12px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow:var(--card-glow)}
+    .brand span{font-size:18px}
+    .nav-cta{display:flex; gap:10px; align-items:center}
+    .btn{--b: var(--panel-strong); display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px; background:var(--b); border:1px solid var(--panel-strong); color:var(--text); cursor:pointer; transition:.2s transform ease, .25s background ease, .25s border-color ease; position:relative; overflow:hidden}
+    .btn:hover{transform:translateY(-1px); border-color: rgba(124,156,255,.55)}
+    .btn .dot{width:8px; height:8px; border-radius:999px; background:var(--accent)}
+    .btn.primary{--b: linear-gradient(135deg, rgba(124,156,255,.18), rgba(34,211,238,.18)); border:1px solid rgba(124,156,255,.45)}
+
+    /* Hero */
+    .hero{position:relative; padding:72px 0 36px}
+    .hero h1{font-size: clamp(32px, 4.8vw, 56px); line-height:1.02; margin:6px 0 10px}
+    .hero p{color:var(--muted); font-size: clamp(14px, 1.8vw, 18px)}
+    .hero .actions{display:flex; gap:12px; margin-top:18px; flex-wrap:wrap}
+    .blob{position:absolute; filter:blur(60px); opacity:.55; pointer-events:none}
+    .blob.one{width:420px; height:420px; left:-120px; top:-40px; background:radial-gradient(circle at 30% 30%, rgba(124,156,255,.7), transparent 55%), radial-gradient(circle at 60% 60%, rgba(34,211,238,.7), transparent 60%)}
+    .blob.two{width:480px; height:480px; right:-150px; top:-120px; background:radial-gradient(circle at 70% 30%, rgba(124,156,255,.65), transparent 55%), radial-gradient(circle at 40% 70%, rgba(34,211,238,.65), transparent 60%)}
+
+    /* Toolbar */
+    .toolbar{display:grid; grid-template-columns: 1fr auto; gap:12px; padding:14px; margin:26px 0 10px; border-radius:var(--radius); background:var(--panel); border:1px solid var(--panel-strong)}
+    .search{display:flex; align-items:center; gap:10px; background:rgba(0,0,0,.25); border:1px solid var(--panel-strong); padding:10px 12px; border-radius:12px}
+    .search input{all:unset; width:100%}
+    .filters{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    .chip{padding:8px 12px; border-radius:999px; border:1px solid var(--panel-strong); background:rgba(255,255,255,0.05); cursor:pointer; font-size:14px}
+    .chip.active{background:linear-gradient(135deg, rgba(124,156,255,.22), rgba(34,211,238,.22)); border-color:rgba(124,156,255,.55)}
+
+    /* Grid */
+    .grid{display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:16px; padding-bottom:60px}
+    .card{position:relative; border-radius:var(--radius); background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04)); border:1px solid var(--panel-strong); padding:16px; overflow:hidden; transition:.25s transform ease, .3s box-shadow ease, .3s border-color ease}
+    .card:hover{transform:translateY(-3px); box-shadow:var(--card-glow); border-color:rgba(124,156,255,.55)}
+    .badge{position:absolute; top:12px; right:12px; font-size:12px; padding:6px 10px; border-radius:999px; background:rgba(124,156,255,.18); border:1px solid rgba(124,156,255,.45)}
+    .title{font-weight:700; font-size:18px; margin:4px 0}
+    .meta{font-size:13px; color:var(--muted)}
+    .tags{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 12px}
+    .tag{font-size:12px; padding:6px 10px; border-radius:999px; background:rgba(255,255,255,.06); border:1px dashed var(--panel-strong)}
+    .card .actions{display:flex; gap:8px}
+    .btn.pill{border-radius:999px}
+
+    /* Footer */
+    footer{padding:40px 0; color:var(--muted)}
+
+    /* Toggle */
+    .toggle{width:48px; height:28px; background:var(--panel); border:1px solid var(--panel-strong); border-radius:999px; position:relative; cursor:pointer}
+    .knob{position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:999px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); transition:.25s left ease}
+    .toggle.on .knob{left:23px}
+
+    /* Small helper */
+    .hidden{display:none !important}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="#">
+        <div class="brand-logo" aria-hidden="true">⚡</div>
+        <span>Nebula Vault</span>
+      </a>
+      <div class="nav-cta">
+        <button class="btn" id="toggleTheme" aria-label="Toggle theme" title="Toggle theme">
+          <span class="dot"></span>
+          <span>Theme</span>
+        </button>
+        <a class="btn primary" href="#how-to">How to add files</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero container">
+    <div class="blob one"></div>
+    <div class="blob two"></div>
+    <h1 data-aos="fade-up" data-aos-delay="50">Download Hub, <span style="background:linear-gradient(135deg,var(--accent),var(--accent-2)); -webkit-background-clip:text; background-clip:text; color:transparent;">reimagined</span>.</h1>
+    <p data-aos="fade-up" data-aos-delay="140">A super-clean, animated downloads website you can deploy on GitHub Pages. Search, filter, and grab your files—fast.</p>
+    <div class="actions" data-aos="fade-up" data-aos-delay="220">
+      <a href="#downloads" class="btn pill primary">Explore Downloads</a>
+      <a href="#how-to" class="btn pill" style="backdrop-filter:blur(6px)">Setup Guide</a>
+    </div>
+  </section>
+
+  <section class="container">
+    <div class="toolbar" data-aos="zoom-in" data-aos-delay="80">
+      <div class="search" style="background:var(--panel)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.6"/></svg>
+        <input id="search" placeholder="Search files, tags, versions…" />
+      </div>
+      <div class="filters" id="filters"></div>
+    </div>
+  </section>
+
+  <section id="downloads" class="container">
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="how-to" class="container" style="margin: 16px 0 12px">
+    <div class="card" data-aos="fade-up">
+      <div class="badge">Guide</div>
+      <h3 class="title">Host on GitHub Pages & add files</h3>
+      <ol class="meta" style="line-height:1.8; margin: 8px 0 0 20px">
+        <li>Create a new GitHub repo (Public). Name it like <b>username.github.io</b> or any name + enable Pages (Settings → Pages → Deploy from <i>main</i>, root).</li>
+        <li>Add this <code>index.html</code> to the repo.</li>
+        <li>Create a <code>downloads/</code> folder in the repo and put your files there (e.g. <code>downloads/Game.zip</code>).</li>
+        <li>Edit the <b>downloadsData</b> array inside this file to match your items (name, version, size, tags, <code>href</code> to your file).</li>
+        <li>Commit & push. Your site will be live on GitHub Pages in a minute.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer class="container">
+    <div class="meta">© <span id="year"></span> Nebula Vault • Built for lightning‑fast, good‑looking downloads.</div>
+  </footer>
+
+  <!-- GSAP for micro-animations -->
+  <script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
+  <!-- AOS for scroll reveals -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    /***********************\
+    |*  DATA: your files  *|
+    \***********************/
+    const downloadsData = [
+      {
+        id: 'Minecraft10016Appx',
+        name: 'Minecraft Appx',
+        version: 'v1.0.0.16',
+        size: '156.2 MB',
+        tags: ['Game','Minecraft','Appx'],
+        href: 'https://drive.google.com/file/d/1ZdYhkV45vFhuTx2IzIr7cS04rCo3q3-f/view?usp=sharing',
+        updated: '2016-12-19'
+      },
+      {
+        id: 'Minecraft11602Appx',
+        name: 'Minecraft Appx',
+        version: 'v1.16.0.2',
+        size: '285.9 MB',
+        tags: ['Game','Minecraft','Appx'],
+        href: 'https://drive.google.com/file/d/1viqZQWgjdXlWCJ9SZp81cU4f-cB2168i/view?usp=sharing',
+        updated: '2020-06-23'
+      },
+      {
+        id: 'Minecraft120811Appx',
+        name: 'Minecraft Appx',
+        version: 'v1.20.81.1',
+        size: '902 MB',
+        tags: ['Game','Minecraft','Appx'],
+        href: 'https://drive.google.com/file/d/1JZhwze4GaRalbh9xOWSwW5GFZVkDIPZ1/view?usp=drive_link',
+        updated: '2024-04-29'
+      },
+      {
+        id: 'nebula-talk',
+        name: 'NebulaTalk (Windows .exe)',
+        version: 'beta-7',
+        size: '86.4 MB',
+        tags: ['windows','chat','beta'],
+        href: 'downloads/NebulaTalk_Setup.exe',
+        updated: '2025-08-22'
+      }
+    ];
+
+    /***************************\
+    |*  THEME: dark / light    *|
+    \***************************/
+    const root = document.documentElement;
+    function setTheme(mode){
+      if(mode==='light'){ root.classList.add('light'); } else { root.classList.remove('light'); }
+      localStorage.setItem('nv_theme', mode);
+      document.querySelector('#toggleTheme').classList.toggle('on', mode==='light');
+    }
+    const saved = localStorage.getItem('nv_theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    setTheme(saved);
+    document.querySelector('#toggleTheme').addEventListener('click', ()=>{
+      setTheme(root.classList.contains('light') ? 'dark' : 'light');
+    });
+
+    /***************************\
+    |*  RENDER: cards + chips  *|
+    \***************************/
+    const grid = document.getElementById('grid');
+    const filtersEl = document.getElementById('filters');
+    const searchEl = document.getElementById('search');
+
+    // Collect unique tags
+    const allTags = Array.from(new Set(downloadsData.flatMap(x=>x.tags))).sort();
+    let activeTag = 'all';
+    const tagChips = ['all', ...allTags].map(tag => {
+      const chip = document.createElement('button');
+      chip.className = 'chip' + (tag==='all' ? ' active' : '');
+      chip.textContent = tag;
+      chip.dataset.tag = tag;
+      chip.addEventListener('click', () => {
+        activeTag = tag;
+        document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+        chip.classList.add('active');
+        render();
+      });
+      filtersEl.appendChild(chip);
+      return chip;
+    });
+
+    function cardTemplate(item){
+      const tagBadges = item.tags.map(t=>`<span class="tag">#${t}</span>`).join('');
+      return `
+        <article class="card" data-aos="fade-up" data-id="${item.id}">
+          <div class="badge" title="Last updated">${new Date(item.updated).toLocaleDateString()}</div>
+          <div style="display:flex; align-items:center; gap:12px">
+            <div class="brand-logo" style="width:44px; height:44px; border-radius:14px">⬇️</div>
+            <div>
+              <div class="title">${item.name}</div>
+              <div class="meta">${item.version} • ${item.size}</div>
+            </div>
+          </div>
+          <div class="tags">${tagBadges}</div>
+          <div class="actions">
+            <a class="btn primary pill" href="${item.href}" download>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Download</span>
+            </a>
+            <button class="btn pill" onclick="copyLink('${location.origin}${location.pathname.replace(/\/[^/]*$/, '/')}${item.href}')">Copy Link</button>
+          </div>
+        </article>
+      `;
+    }
+
+    function render(){
+      const q = (searchEl.value || '').trim().toLowerCase();
+      const filtered = downloadsData.filter(item => {
+        const matchesTag = activeTag==='all' || item.tags.includes(activeTag);
+        const matchesText = !q || `${item.name} ${item.version} ${item.tags.join(' ')} ${item.size}`.toLowerCase().includes(q);
+        return matchesTag && matchesText;
+      });
+      grid.innerHTML = filtered.map(cardTemplate).join('');
+      AOS.refreshHard();
+      // gsap pop-in
+      gsap.fromTo('.card', {y: 8, opacity: 0}, {y:0, opacity:1, duration:.35, stagger:.05, ease:'power2.out'});
+    }
+
+    searchEl.addEventListener('input', render);
+
+    // Init
+    AOS.init({ once:false, duration:600, easing:'ease-out-cubic' });
+    render();
+
+    // Fancy hero blob float
+    gsap.to('.blob.one', { x: 30, y: 20, scale: 1.06, repeat:-1, yoyo:true, duration:5, ease:'sine.inOut' });
+    gsap.to('.blob.two', { x: -20, y: 10, scale: 1.05, repeat:-1, yoyo:true, duration:6, ease:'sine.inOut' });
+
+    // Copy link helper
+    async function copyLink(text){
+      try{
+        await navigator.clipboard.writeText(text);
+        toast('Link copied!');
+      }catch(e){
+        prompt('Copy this link:', text);
+      }
+    }
+
+    // Micro toast
+    const toastBox = document.createElement('div');
+    Object.assign(toastBox.style, {position:'fixed', bottom:'22px', left:'50%', transform:'translateX(-50%)', zIndex:9999});
+    document.body.appendChild(toastBox);
+    function toast(msg){
+      const el = document.createElement('div');
+      el.textContent = msg;
+      el.style.padding = '10px 14px';
+      el.style.borderRadius = '999px';
+      el.style.background = 'rgba(0,0,0,.65)';
+      el.style.border = '1px solid rgba(255,255,255,.2)';
+      el.style.color = '#fff';
+      el.style.backdropFilter = 'blur(6px)';
+      el.style.marginTop = '10px';
+      el.style.opacity = 0;
+      toastBox.appendChild(el);
+      gsap.to(el, {opacity:1, y:-6, duration:.25, ease:'power2.out'});
+      setTimeout(()=>{ gsap.to(el, {opacity:0, y:-10, duration:.3, ease:'power2.in', onComplete:()=>el.remove()}); }, 1400);
+    }
+
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
